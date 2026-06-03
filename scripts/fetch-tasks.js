@@ -78,10 +78,8 @@ function normalizeTask(task) {
   return {
     id:            task.id,
     name:          task.name,
-    description:   task.description || '',
     list:          task.list?.name || '',
     folder:        task.folder?.name || '',
-    status:        task.status?.status || '',
     priority,
     time_estimate: task.time_estimate ?? null,
     due_date:      task.due_date

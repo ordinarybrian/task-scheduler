@@ -1,5 +1,7 @@
 # Task Scheduler
 
+**Version 1.1.0**
+
 Automatically builds a time-blocked weekly schedule from your ClickUp tasks and Google Calendar, then adds the blocks directly to your calendar.
 
 **What it does, in order:**
@@ -345,3 +347,15 @@ BUSY_CALENDARS=primary,work@company.com,abc123@group.calendar.google.com
 | 4 | Flamingo | 10 | Basil |
 | 5 | Banana | 11 | Tomato |
 | 6 | Tangerine | | |
+
+---
+
+## Changelog
+
+### 1.1.0
+- No-past-day scheduling: blocks can only be placed on today or future days
+- Reduced prompt token count: stripped unused fields from tasks and calendar, compacted JSON serialization
+- Fixed `model` variable initialization error in generate-schedule.js
+
+### 1.0.0
+- Initial release

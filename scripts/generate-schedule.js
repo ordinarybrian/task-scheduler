@@ -80,10 +80,10 @@ async function main() {
     `Generate a schedule for week ${week}. Today is ${today}.`,
     '',
     '## Open Tasks',
-    JSON.stringify(tasks, null, 2),
+    JSON.stringify(tasks),
     '',
     '## Calendar Events (existing busy blocks)',
-    JSON.stringify(calendar, null, 2),
+    JSON.stringify(calendar),
     '',
     'Return a JSON object with:',
     '- "schedule_md": the full schedule as a markdown document organized by day',
@@ -97,9 +97,9 @@ async function main() {
 
   const client = new Anthropic();
 
-  console.log(`Contacting Claude (${model}) for week ${week}...`);
-
   const model = process.env.CLAUDE_MODEL || 'claude-haiku-4-5';
+
+  console.log(`Contacting Claude (${model}) for week ${week}...`);
 
   const response = await client.messages.create({
     model,

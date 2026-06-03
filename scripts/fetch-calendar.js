@@ -19,12 +19,11 @@ function normalizeEvent(event, calendarId) {
   const status = event.transparency === 'transparent' ? 'free' : 'busy';
 
   return {
-    id:         event.id,
-    title:      event.summary || '(no title)',
+    _id:    event.id,
+    title:  event.summary || '(no title)',
     start,
     end,
     status,
-    calendarId,
   };
 }
 
@@ -63,10 +62,10 @@ async function main() {
   // Merge and deduplicate by event ID (same event can appear on multiple calendars)
   const seen   = new Set();
   const events = results.flat().filter(e => {
-    if (seen.has(e.id)) return false;
-    seen.add(e.id);
+    if (seen.has(e._id)) return false;
+    seen.add(e._id);
     return true;
-  });
+  }).map(({ _id, ...rest }) => rest);
 
   // Sort by start time after merging
   events.sort((a, b) => (a.start > b.start ? 1 : -1));
