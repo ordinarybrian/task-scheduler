@@ -136,7 +136,23 @@ To check your status names: open any ClickUp list and look at the column headers
 
 ### Step 2 — Create your .env file
 
-Paste this entire block into your terminal from inside the `task-scheduler` folder. It will prompt you for each value and write `scripts/.env` automatically.
+1. Unzip the downloaded file:
+   - Open **Finder**
+   - In the left sidebar, click **Downloads**
+   - Find the `task-scheduler.zip` file and double-click it — this creates a `task-scheduler` folder in the same location
+
+2. Move the `task-scheduler` folder to Documents:
+   - With the `task-scheduler` folder still visible in Downloads, drag it into **Documents** in the left sidebar
+
+3. Open **Terminal** (press `Cmd + Space`, type `Terminal`, and hit Enter)
+
+4. Navigate to the `task-scheduler` folder:
+
+```bash
+cd ~/Documents/task-scheduler
+```
+
+5. Paste this entire block into the terminal and press Enter. It will prompt you for each value and write `scripts/.env` automatically.
 
 ```bash
 read -rp "Anthropic API key: " _ANTHROPIC
@@ -175,6 +191,16 @@ sed -i '' 's/^CLICKUP_STATUSES=.*/CLICKUP_STATUSES=Open,In Progress,Review/' scr
 
 ### Step 3 — Run setup
 
+1. Open **Terminal** (press `Cmd + Space`, type `Terminal`, and hit Enter)
+
+2. Navigate to the `task-scheduler` folder:
+
+```bash
+cd ~/Documents/task-scheduler
+```
+
+3. Run the setup script:
+
 ```bash
 ./setup.sh
 ```
@@ -191,6 +217,16 @@ Setup only needs to be run once. If you re-run it later, your existing values ar
 
 ## Weekly use
 
+1. Open **Terminal** (press `Cmd + Space`, type `Terminal`, and hit Enter)
+
+2. Navigate to the `task-scheduler` folder:
+
+```bash
+cd ~/Documents/task-scheduler
+```
+
+3. Run the scheduler:
+
 ```bash
 ./run.sh
 ```
@@ -199,23 +235,47 @@ Setup only needs to be run once. If you re-run it later, your existing values ar
 
 ## Running automatically with cron
 
-Run these two commands from inside the `task-scheduler` folder to generate the exact lines you need:
+Cron is a built-in Mac scheduler that can run the script for you automatically each week — no manual steps required after setup.
+
+**Step 1 — Open Terminal and navigate to the project folder**
+
+1. Open **Terminal** (press `Cmd + Space`, type `Terminal`, and hit Enter)
+2. Navigate to the `task-scheduler` folder:
 
 ```bash
-# Your node path
-echo "PATH=$(dirname $(which node)):/usr/bin:/bin"
+cd ~/Documents/task-scheduler
+```
 
-# Your cron job line — runs every Monday at 7:00 AM
+**Step 2 — Generate your cron lines**
+
+Run these two commands one at a time. Each one will print a line of output — you'll copy that output in the next step.
+
+```bash
+echo "PATH=$(dirname $(which node)):/usr/bin:/bin"
+```
+
+```bash
 echo "0 7 * * 1 $(pwd)/run.sh >> $(pwd)/scheduler.log 2>&1"
 ```
 
-Copy both lines of output, then open your crontab:
+After running both, you should see two lines printed in the terminal. Select and copy both lines.
+
+**Step 3 — Open your crontab**
+
+Run this command to open the cron scheduler file:
 
 ```bash
 crontab -e
 ```
 
-Paste both lines and save. The PATH line must come first.
+This opens a text editor called **vim** directly in the terminal. It can look unfamiliar — follow these steps exactly:
+
+1. Press `i` on your keyboard to enter edit mode (you'll see `-- INSERT --` at the bottom)
+2. Paste the two lines you copied (the PATH line must come first)
+3. Press `Escape` to exit edit mode
+4. Type `:wq` and press Enter to save and close
+
+The scheduler is now active. It will run every Monday at 7:00 AM automatically.
 
 **To check the log after a run:**
 
