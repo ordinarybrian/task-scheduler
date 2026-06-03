@@ -3,7 +3,7 @@ require('dotenv').config();
 const fs                        = require('fs').promises;
 const { google }                = require('googleapis');
 const { getAuthClient }         = require('./lib/auth');
-const { getISOWeek, getSchedulePaths } = require('./lib/week');
+const { getISOWeek, getWeekBounds, getSchedulePaths } = require('./lib/week');
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 
@@ -15,6 +15,38 @@ const DEFAULT_COLOR = process.env.SCHEDULE_BLOCK_COLOR || '7'; // Peacock
 
 const TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+// Tag applied to every event we create so we can find and delete them later.
+const SCHEDULER_TAG = 'taskScheduler=true';
+
+async function deleteSchedulerEvents(calendar, weekBounds) {
+  const { monday, sunday } = weekBounds;
+
+  const res = await calendar.events.list({
+    calendarId:              CALENDAR_ID,
+    timeMin:                 monday.toISOString(),
+    timeMax:                 sunday.toISOString(),
+    privateExtendedProperty: SCHEDULER_TAG,
+    singleEvents:            true,
+  });
+
+  const events = res.data.items || [];
+  if (events.length === 0) return;
+
+  console.log(`Removing ${events.length} previously scheduled block(s)...`);
+  let removed = 0;
+  for (const event of events) {
+    try {
+      await calendar.events.delete({ calendarId: CALENDAR_ID, eventId: event.id });
+      removed++;
+    } catch (err) {
+      if (err.code !== 404 && err.status !== 404) {
+        console.warn(`  [warn] Could not delete "${event.summary}": ${err.message}`);
+      }
+    }
+  }
+  console.log(`  ${removed} removed.\n`);
+}
+
 async function createEvent(calendar, block) {
   const resource = {
     summary:     block.title,
@@ -22,40 +54,19 @@ async function createEvent(calendar, block) {
     colorId:     block.colorId || DEFAULT_COLOR,
     start: { dateTime: block.start, timeZone: TIMEZONE },
     end:   { dateTime: block.end,   timeZone: TIMEZONE },
+    extendedProperties: {
+      private: { taskScheduler: 'true' },
+    },
   };
 
   const res = await calendar.events.insert({ calendarId: CALENDAR_ID, resource });
   return res.data;
 }
 
-async function deletePreviousEvents(calendar, createdEventsFile) {
-  let ids;
-  try {
-    ids = JSON.parse(await fs.readFile(createdEventsFile, 'utf8'));
-  } catch {
-    return; // no previous run
-  }
-
-  if (!Array.isArray(ids) || ids.length === 0) return;
-
-  console.log(`Removing ${ids.length} previously scheduled block(s)...`);
-  let removed = 0;
-  for (const id of ids) {
-    try {
-      await calendar.events.delete({ calendarId: CALENDAR_ID, eventId: id });
-      removed++;
-    } catch (err) {
-      if (err.code !== 404 && err.status !== 404) {
-        console.warn(`  [warn] Could not delete event ${id}: ${err.message}`);
-      }
-    }
-  }
-  console.log(`  ${removed} removed.\n`);
-}
-
 async function main() {
-  const week  = getISOWeek();
-  const paths = getSchedulePaths(week);
+  const week       = getISOWeek();
+  const paths      = getSchedulePaths(week);
+  const weekBounds = getWeekBounds();
 
   let blocks;
   try {
@@ -81,17 +92,15 @@ async function main() {
   const auth     = await getAuthClient();
   const calendar = google.calendar({ version: 'v3', auth });
 
-  await deletePreviousEvents(calendar, paths.createdEventsFile);
+  await deleteSchedulerEvents(calendar, weekBounds);
 
   let created = 0;
   let failed  = 0;
   const failures = [];
-  const createdIds = [];
 
   for (const block of blocks) {
     try {
-      const event = await createEvent(calendar, block);
-      createdIds.push(event.id);
+      await createEvent(calendar, block);
       console.log(`  [ok] ${block.title}`);
       created++;
     } catch (err) {
@@ -100,8 +109,6 @@ async function main() {
       failed++;
     }
   }
-
-  await fs.writeFile(paths.createdEventsFile, JSON.stringify(createdIds, null, 2));
 
   console.log(`\nDone. ${created} created, ${failed} failed.`);
 
