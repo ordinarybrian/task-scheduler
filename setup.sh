@@ -73,7 +73,7 @@ ask() {
     read -r -p "  $label [already set, press Enter to keep]: " val
   else
     if [ -n "$hint" ]; then
-      echo "  $hint"
+      echo "  $hint" >&2
     fi
     read -r -p "  $label: " val
   fi
