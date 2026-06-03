@@ -204,7 +204,7 @@ cd ~/Documents/task-scheduler
 3. Run the setup script:
 
 ```bash
-./setup.sh
+bash ./setup.sh
 ```
 
 This will:
@@ -230,7 +230,7 @@ cd ~/Documents/task-scheduler
 3. Run the scheduler:
 
 ```bash
-./run.sh
+bash ./run.sh
 ```
 
 ---
