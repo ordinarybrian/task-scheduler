@@ -1,0 +1,17 @@
+# Credentials and secrets
+scripts/.env
+scripts/credentials.json
+scripts/token.json
+
+# Generated schedule data
+schedules/*/input/
+schedules/*/output/
+
+# Dependencies
+scripts/node_modules/
+
+# Logs
+scheduler.log
+
+# macOS
+.DS_Store

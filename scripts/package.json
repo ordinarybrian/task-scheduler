@@ -1,0 +1,20 @@
+{
+  "name": "task-scheduler-scripts",
+  "version": "1.0.0",
+  "description": "ClickUp and Google Calendar integration scripts for the Blackbird task scheduler",
+  "scripts": {
+    "fetch-tasks": "node fetch-tasks.js",
+    "fetch-calendar": "node fetch-calendar.js",
+    "fetch-all": "node fetch-tasks.js && node fetch-calendar.js",
+    "generate-schedule": "node generate-schedule.js",
+    "import-blocks": "node import-blocks.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "dotenv": "^16.4.5",
+    "googleapis": "^140.0.0"
+  }
+}
