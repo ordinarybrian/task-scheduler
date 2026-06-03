@@ -20,7 +20,7 @@ Do not schedule task blocks outside of working hours unless the input data or a 
 
 Schedule task blocks for the current week only (Monday through Friday of the current ISO week) unless the user specifies otherwise.
 
-Do not schedule any task blocks on days before today's date. If today is Wednesday, Monday and Tuesday are off-limits regardless of the scheduling window. Only today and future days within the week are eligible.
+Do not schedule any task blocks that start before the current time. Past days are fully off-limits. For today, only schedule blocks that start at or after the current time — do not backfill earlier slots on today's date.
 
 If the current week does not have enough available time to fit all tasks, do not extend into the following week automatically. Instead:
 
@@ -108,7 +108,7 @@ If a task has a due date within the week, its blocks should be front-loaded to e
 
 Before finalizing the schedule, confirm that:
 
-- No task block is placed on a date before today's date.
+- No task block starts before the current time (past days fully excluded; today only uses slots at or after now).
 - No task block overlaps with a busy calendar event.
 - No task block falls outside working hours.
 - Buffer time is respected around all busy events.

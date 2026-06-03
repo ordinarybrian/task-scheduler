@@ -61,7 +61,9 @@ async function main() {
   }
 
   const rules = await readRules();
-  const today = new Date().toISOString().split('T')[0];
+  const now   = new Date();
+  const today = now.toISOString().split('T')[0];
+  const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
   const systemPrompt = [
     'You are a scheduling assistant. Generate a time-blocked weekly schedule based on the provided tasks and calendar.',
@@ -77,7 +79,7 @@ async function main() {
   ].join('\n');
 
   const userMessage = [
-    `Generate a schedule for week ${week}. Today is ${today}.`,
+    `Generate a schedule for week ${week}. Today is ${today} and the current time is ${currentTime}.`,
     '',
     '## Open Tasks',
     JSON.stringify(tasks),
