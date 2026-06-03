@@ -41,8 +41,9 @@ function getSchedulePaths(week) {
     output:       path.join(base, 'output'),
     tasksFile:    path.join(base, 'input',  'tasks.json'),
     calendarFile: path.join(base, 'input',  'calendar.json'),
-    scheduleFile: path.join(base, 'output', 'schedule.md'),
-    blocksFile:   path.join(base, 'output', 'time-blocks.json'),
+    scheduleFile:       path.join(base, 'output', 'schedule.md'),
+    blocksFile:         path.join(base, 'output', 'time-blocks.json'),
+    createdEventsFile:  path.join(base, 'output', 'created-event-ids.json'),
   };
 }
 

@@ -28,6 +28,31 @@ async function createEvent(calendar, block) {
   return res.data;
 }
 
+async function deletePreviousEvents(calendar, createdEventsFile) {
+  let ids;
+  try {
+    ids = JSON.parse(await fs.readFile(createdEventsFile, 'utf8'));
+  } catch {
+    return; // no previous run
+  }
+
+  if (!Array.isArray(ids) || ids.length === 0) return;
+
+  console.log(`Removing ${ids.length} previously scheduled block(s)...`);
+  let removed = 0;
+  for (const id of ids) {
+    try {
+      await calendar.events.delete({ calendarId: CALENDAR_ID, eventId: id });
+      removed++;
+    } catch (err) {
+      if (err.code !== 404 && err.status !== 404) {
+        console.warn(`  [warn] Could not delete event ${id}: ${err.message}`);
+      }
+    }
+  }
+  console.log(`  ${removed} removed.\n`);
+}
+
 async function main() {
   const week  = getISOWeek();
   const paths = getSchedulePaths(week);
@@ -56,13 +81,17 @@ async function main() {
   const auth     = await getAuthClient();
   const calendar = google.calendar({ version: 'v3', auth });
 
+  await deletePreviousEvents(calendar, paths.createdEventsFile);
+
   let created = 0;
   let failed  = 0;
   const failures = [];
+  const createdIds = [];
 
   for (const block of blocks) {
     try {
       const event = await createEvent(calendar, block);
+      createdIds.push(event.id);
       console.log(`  [ok] ${block.title}`);
       created++;
     } catch (err) {
@@ -71,6 +100,8 @@ async function main() {
       failed++;
     }
   }
+
+  await fs.writeFile(paths.createdEventsFile, JSON.stringify(createdIds, null, 2));
 
   console.log(`\nDone. ${created} created, ${failed} failed.`);
 
